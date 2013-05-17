@@ -8,7 +8,6 @@ time_t last_seen;
 
 void messageCallBack( const sensor_msgs::ImageConstPtr& msg ) {
 
-  ROS_INFO( "Message detected\n");
   time(&last_seen);
 
 }
@@ -63,7 +62,7 @@ int main( int argc, char *argv[] ) {
       
       time(&current);
       
-      ROS_INFO( "Last seen: %f seconds ago", difftime( current, last_seen ) );
+      printf( "Last seen: %f seconds ago", difftime( current, last_seen ) );
 
       // Probably not working, KILL THYSELF
       if( difftime( current, last_seen) > atoi(argv[4] ) ) {
