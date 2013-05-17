@@ -4,11 +4,11 @@
 #include <signal.h>
 #include <time.h>
 
-time_t last_seen;
+ros::Time lastSeen;
 bool seenone = false;
 
 void messageCallBack( const sensor_msgs::ImageConstPtr& msg ) {
-  time(&last_seen);
+  lastSeen = ros::Time::now();
   seenone = true;
 }
 
@@ -48,18 +48,16 @@ int main( int argc, char *argv[] ) {
 
 
     perror("execlp");
-    exit(1);
+    exit(0);
 
   default: // Monitor
-
-    time( &last_seen );
 
     ROS_INFO( "Created republisher node with pid : %d", pid );
     
     sleep( 5 ) ;
 
     ros::init(argc, argv, "republish_monitor" );
-    time_t current;
+    ros::Time current;
     ros::NodeHandle n;
     image_transport::ImageTransport it(n);
     image_transport::Subscriber sub = it.subscribe( out_name, 10, messageCallBack );
@@ -70,17 +68,17 @@ int main( int argc, char *argv[] ) {
 
       ros::spinOnce();
       if (seenone)
-      {
-        time(&current);
-      
-        printf( "Last seen: %f seconds ago", difftime( current, last_seen ) );
+      {     
+        current = ros::Time::now();
+	ros::Duration d = current - lastSeen; 
+        printf( "Last seen: %d.%d seconds ago\n", d.sec, d.nsec );
 
         // Probably not working, KILL THYSELF
-        if( difftime( current, last_seen) > atoi(argv[4] ) ) {
+        if( d.sec  > atoi(argv[4] ) ) {
 	
 	  ROS_INFO( "KILLING REPUBLISHER\n");
 	  // Kill child
-	  kill(pid, SIGINT);
+	  kill(pid, SIGKILL);
 	
 	  wait();
 	  ros::shutdown();
@@ -91,7 +89,7 @@ int main( int argc, char *argv[] ) {
 
     }
     
-    exit(1);
+    exit(0);
   }
   return  0;
 }

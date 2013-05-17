@@ -1,7 +1,7 @@
 <launch>
   <arg name="ns" />
   <arg name="intopic" default="image_raw" />
-  <arg name="outtopic" default="$(arg ns)/replublished/image_raw" />
+  <arg name="outtopic" default="$(arg ns)/republished/image_raw" />
   <arg name="outplugin" default="compressed" />
   <arg name="timeout" default="10" />
   <node pkg="republish_theora" type="republish_theora" args="$(arg intopic) $(arg outtopic) $(arg outplugin) $(arg timeout) $(arg ns) _image_transport:=$(arg outplugin)" name="uirepublisher" ns="$(arg ns)" respawn="true" output="screen" />  
