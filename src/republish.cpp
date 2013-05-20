@@ -5,11 +5,11 @@
 #include <time.h>
 
 ros::Time lastSeen;
-bool seenone = false;
+//bool seenone = false;
 
 void messageCallBack( const sensor_msgs::ImageConstPtr& msg ) {
   lastSeen = ros::Time::now();
-  seenone = true;
+//  seenone = true;
 }
 
 int main( int argc, char *argv[] ) {
@@ -29,7 +29,8 @@ int main( int argc, char *argv[] ) {
   sprintf( out_name, "/%s", argv[2] );
   sprintf( out_topic, "out:=%s", out_name);
   if (argc > 5)
-    sprintf( ns, "__ns:=%s", argv[5] );
+    sprintf( in_topic, "in:=/%s/%s", argv[5], argv[1] );
+
   printf("in_topic=%s\nout_name=%s\nout_topic=%s\nns=%s\n", in_topic, out_name, out_topic,ns);
     
 
@@ -39,10 +40,6 @@ int main( int argc, char *argv[] ) {
     perror("Failed to fork!\n");
     exit(-1);
   case 0: // Republisher
-    if (argc > 5)    
-    execlp("rosrun", "rosrun", "image_transport", "republish", "theora",
-	   in_topic, argv[3], out_topic, "_name=republish_child",ns, NULL );
-    else
     execlp("rosrun", "rosrun", "image_transport", "republish", "theora",
 	   in_topic, argv[3], out_topic, "_name=republish_child",NULL );
 
@@ -62,13 +59,14 @@ int main( int argc, char *argv[] ) {
     image_transport::ImageTransport it(n);
     image_transport::Subscriber sub = it.subscribe( out_name, 10, messageCallBack );
     
+    lastSeen = ros::Time::now();
     ros::Rate loop_rate(10);
 
     while( ros::ok() ) {
 
       ros::spinOnce();
-      if (seenone)
-      {     
+  //    if (seenone)
+  //    {     
         current = ros::Time::now();
 	ros::Duration d = current - lastSeen; 
         printf( "Last seen: %d.%d seconds ago\n", d.sec, d.nsec );
@@ -84,7 +82,7 @@ int main( int argc, char *argv[] ) {
 	  ros::shutdown();
 	  exit(-1);
         }
-      }
+    //  }
       loop_rate.sleep();
 
     }
